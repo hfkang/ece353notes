@@ -14,11 +14,12 @@ O/S Provides us with two functions we can separate:
 1. multiplexing shared resources for multiple programs (cpu, mem, disk)
 2. abstracting hardware interface via common API (syscal) 
  
+```
 App | App | App      
 OS  |  OS | OS    
 |   Multiplex   |  <- hypervisor   
 |    Hardware   |  
-
+```
 The syscalls are provided via a kernel that sits on top of multiplexed resources. 
 
 ### VMM aka Hypervisor
