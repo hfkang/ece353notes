@@ -102,3 +102,10 @@ etc... look for the frame entry with the page # and the index of that entry is t
 
 ##### Hash Table
 Instead of using linear search (slow), use a hash table to speed up lookups
+
+Hash the page address and procure the frame # from hashtable, search all matching frames for a page match.
+
+|Hash|Frame#|
+|---|---|
+|H#|F#|
+|H#|F# , F#|

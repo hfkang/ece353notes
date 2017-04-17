@@ -10,7 +10,7 @@ Paging strategies depend on reference locality:
 ##### Random Page Replacement 
 Very simple. Too simple. 
 
-##### Belady 
+##### Belady (optimal) 
 Evict the page not needed for the longest time in the future. Assume fortune telling capabilities.
  
 **cold start** the interval during which you fill up an empty cache
@@ -19,3 +19,5 @@ Evict the page not needed for the longest time in the future. Assume fortune tel
 How do you know which page is the oldest?  
 Maintain a linked list.  
 On a page fault, swap the page at the front of the list. 
+
+**Issues** Oldest page may be used again, causing another page fault. Pages used consistently will suffer. 

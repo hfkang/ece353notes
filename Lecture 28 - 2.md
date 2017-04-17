@@ -14,22 +14,26 @@ Settling Time: 0.5 - 2ms
 ### Storage on DISK
 |MBR| 
 |---|
-|pt1|
-|pt2|
-|pt3|
+|partition 1|
+|partition 2|
+|partition 3|
 
 **MBR** Master boot record contains 1) boot code, 2) partition table. 
+Boot code points to a bootable partition which will read in the OS from that partition. 
 
 **partition** region of contiguous sectors. 
 
-**sector** usually around 512 bytes. Reading *atomic*, guaranteed by manufacturer.
+**sector** usually around 512 bytes. Reading *atomic*, guaranteed by manufacturer. Concentric sectors form *tracks*.
 
 **blocks** are larger, around 1KB to 4KB and contain multiple contiguous sectors. Reads are not atomic 
 
-### Multiple FS 
+### Partition Types
+Each partition can be either raw or cooked:  
+
 **Raw** partition for swap space has no file system
 
-**Cooked** contains filesystem. 
+**Cooked** contains an isolated filesystem. 
+
 
 #### Booting process 
 Bootable partition starts with boot block, contains small program which reads in an OS from FS. On OS startup, BIOS reads from MBR sector and execs the boot block. 
@@ -53,6 +57,7 @@ Put all blocks for a file in a contiguous region.
 - Files cannot grow if placed in a gap  
 As a result, this FS is used for CD/DVD and UDF.  
 
+#### Idea 1.2) extentsm
 **extent** a portion of a file when the filesize is larger than max chunk supported by the filesystem. Each extent is stored contiguously.  
 + benefit from contiguous reads  
 + can be more flexible than cont. alloc
@@ -141,9 +146,9 @@ symlink is slightly _slower_ as they need to traverse the path to locate the ino
 Hardlinks are nice because if multiple snapshots reference the same file then we can just create more hardlinks. When no one references them anymore, we delete the inode. 
 
 #### Handling deletions
-For hardlinks, we must maintain reference count in an inode to see how many directories reference us. When count goes to zero, reclaim blocks. 
+For hardlinks, we must maintain *reference count* in an inode to see how many directories reference us. When count goes to zero, reclaim blocks. 
 
-For Symbolic links, the actual file gets removed and the remaining symlinks break. 
+For Symbolic links, the actual file gets removed and the remaining symlinks *break*. 
 
 ## Opening Files via open()
 1. The open() syscall passes filename to logical file system by searching the **system-wide open-file table** to see if it's already in use. 
@@ -156,7 +161,7 @@ For Symbolic links, the actual file gets removed and the remaining symlinks brea
 **per-process open-file table** keeps track of which files a process has open, and it's current position, and access mode (r,w,)
 
 ### File Descriptor/File Handle
-The open() call returns **index** to entry in our **ppoft**. Kernel pointers are not allowed!!!. 
+The open() call returns **index** to entry in our process openfiletable. Kernel pointers are not allowed!!!. 
 
 We have 2^16. First three are mapped as:  
 0: stdin  
@@ -166,7 +171,7 @@ We have 2^16. First three are mapped as:
 #### Procedure
 1. look in sys-wide openfile table 
 2. look in storage for inode and put it in syswide openfile table
-3. store in ppoft a links to sw-oft 
+3. store in ppoft a links to system wide open filet table 
 
 ### Blitz File management
 in blitz we dont really have files .. we have contiguous sectors. 
@@ -183,7 +188,7 @@ OpenFile contains
 - numberOfUsers (parent/children)
 - currentPosition 
 
-PCB's fileDescriptor is the perprocess open file table. 
+PCB's fileDescriptor is the index to an entry in a per-process open file table. 
 
 *Why do multiple processes point to same open file?*  
 When we fork a process, the open files must be shared with the child, including the current position the parent was at. 
@@ -204,7 +209,7 @@ Keep track of
 
 1. address of first free block 
 2. size of region 
-
+3. 
 RIP ZFS. 
 
 ## Performance of FS 
@@ -225,17 +230,17 @@ Superblock bitmap | inode bitmap|data bitmap inodes|datablocks
 
 This invokes a lot of random file accesses :(  
 ### Improving Speed by subgrouping the partition
-Fast File System, ext2, ext3, ext4 address the performance issues by splitting the partition into smaller segments 
+Fast File System, ext2, ext3, ext4 address the performance issues by splitting the partition into smaller segments (cylinder) 
 
 |block group 1| block group 2| block group 3|
 | ---| --- | ---| 
 
-Each block group contains an instance of the struct above.  A file is stored in one group. (huge files *not* supported) The super block is replicated across block groups for resilience. This keeps the *data pertaining to a file close together* so seek times are *reduced*. 
+Each block group contains an instance of the struct above.  A file is stored in one group. (huge files *not* supported) The super block is replicated across block groups for resilience. This keeps the *metadata pertaining to a file close together* so seek times are *reduced*. 
 
-In FFS, these groups are called **cylinders**. 
+In Fast File System, these groups are called **cylinders**. 
 
 
-### Improving Speed via Caching 
+### Improving Speed via Buffer Cache 
 The **buffer cache** keeps blocks in memory for consumption by **read()** syscalls.  
 Use LRU as cache replacement policy.  
 In Linux, all remaining RAM is allocated to buffer cache. 

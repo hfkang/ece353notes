@@ -7,7 +7,7 @@ Hierarchal structure
 
 ```
 CPU    Memory
-_|_______|___  memory bus (propprietary) 
+_|_______|___  memory bus (proprietary) 
     |
     |
 ____|________________ graphics io bus (PCI)
@@ -60,7 +60,7 @@ Given data location, how many bytes, and destination the DMA will do the transfe
 +No new instructions (just use load/store).  
 +Can use C:  
 +To protect just don't give user addrspace  
--MMIO might be cached in the buffer cache, which needs to be disabled. 
+-command or data might be cached in the buffer cache, which needs to be disabled. This caching must be *selectively disabled*
 
 ### Hardware Abstraction 
 ```
@@ -84,7 +84,7 @@ characteristics that an os considers when abstracting i/o
 - device speed
 - i/o direction 
 
-UNIX originally considered three:
+UNIX originally considered three kinds of devices:
 
 - block device
 - character device 

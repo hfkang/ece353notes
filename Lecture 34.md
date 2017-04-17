@@ -31,7 +31,7 @@ Hypervisors are simpler to make than OS, can have less bugs and only exist to pr
 
 **Type 2** runs as an O/S process (host)
 
-### Requirements for VM
+### Requirements to VM
 **sensitive** instruction can only be run in kernel mode.  
 **privileged** instruction causes trap in user mode   
 When all sensitive inst are privileged, the arch is *virtualizable*. Priv enforces the sensitive inst via traps. This lets us run user mode programs in an OS. 
@@ -45,7 +45,7 @@ Trap instruction triggers hardware interrupt which is handled by VMM. If done by
 
 ## Implementation
 ### Type 1 hypervisor
-
+![](images/lec27_type1.png)
 #### Syscalls
 Guest OS/App runs in user mode. When SysCall, app triggers trap -> VMM -> guestOS traphandler (usermode) -> execute syscall -> return to VMM -> return from trap. 
 
@@ -58,16 +58,22 @@ Traditionally, the OS kernel handles a TLB Miss fault and updates the TLB by loo
 In the VMM Model,
 
 1. Load address causing TLB fault
-2. VMM TLB hanlder calls OS handler
+2. VMM TLB handler calls OS handler
 3. OS does page lookup and updates TLB, triggers VMM
 4. VMM rejects (VPN -> PFN) update, and update (VPN -> MFN) instead
 5. Guest OS returns from trap
 6. VMM returns from trap
-7. Resume app execution, inst retried and tlb hit. 
+7. Resume app execution, instruction retried and gets a TLB hit
 
 Q: How to reconcile the process->guestOS->VMM TLB entry? 
 
-If a TLB entry contains VPN|MFN, then how do you know which process it belongs to? Which OS it belongs to?
+Q: If a TLB entry contains VPN|MFN, then how do you know which process it belongs to? Which OS it belongs to?
 
 
+### Type 2
+![](images/lec27_type2.png)
+Convert all sensitive instructions into trap instructions
+
+1. **Binary Rewriting** a la VMWare, the conversion done at runtime and requires no change to OS code. Hard to do though
+2. **Para-Virtualization** (Xen), convert OS source to target the Virt machine specifically. This requires we change OS source though. Easier to do tbh. 
 

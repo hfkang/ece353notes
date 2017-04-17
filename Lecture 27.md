@@ -21,18 +21,19 @@ Instead, learn from previous usage patterns. We need to store more information w
 **Q:** can we determine usage patterns from the page status bits?
 
 ### FIFO with Referenced Bit
-Still want to use FIFO, but look at referenced bit.  
-If it's 0 (not used) then select for replacement.  
-If it's 1, clear referenced bit and move to end as if new page.  
-If every page was referenced, eventually all will be _dereferenced_ and available for replacement. It **degenerates to FIFO**. 
-Performance
+Still want to use FIFO, but look at referenced bit. On every page fault:  
+
+- If it's 0 (not used) then select for replacement.  
+- If it's 1, clear referenced bit and move to end as if new page.  
+- If every page was referenced, eventually all will be _dereferenced_ and available for replacement. It **degenerates to FIFO**. 
+
 
 
 ### Clock Algorithm
 Maintain circular list of pages. Rotate through the list and and look for a page that doesn't have a referenced bit set (instead of moving pages around the list). It's a simpler implementation of FIFO with Referenced Bit. 
 
 ### Enhanced Second Chance (Not Freq. Used)
-Replace page not recently used. Pages have referenced and dirty bit.  Periodically (eg. during timer interrupt) clear the referenced bit for all pages, so we know which pages were recently used. 
+Replace page not recently used. Pages have referenced and dirty bit.  **Periodically** (eg. during timer interrupt) clear the referenced bit for all pages, so we know which pages were recently used. 
 
 Class|Refernced|Dirty|Note
 ---  | ---     | --- |---
@@ -48,9 +49,9 @@ c | a | d | b | e | b | a | b | c | d
 ---|---|---|---|---|---|---|---|---|---
   |   |   |   | R |  |   |   |   |   | 
   
-#####   Implementation 1
+#####   Implementation 1 : Full Stack
 Keep a stack of all the pages. But this is **expensive**. Must move elements around for every memory access. Now each memory read has incredible overhead. 
-##### Implementation 2
+##### Implementation 2 : Timestamp
 MMU maintains counter, incremented with each memory read. When page entry used, update its timestamp. On page fault, look for oldest timestamp in the page table for replacement.  
 **Problem** this is still expensive! Still double memory overhead. 
 ##### Implementation 3: Additional Reference Bits 
@@ -64,10 +65,10 @@ limited time precision with which thread was least recently used. That and you c
 ### Working Set Model
 The set of pages a process needs *currently*. If working set is in memory, then no page faults will happen. 
 
-**thrashing** when not enough frames to accommodate WS, page faults constantly happen. The user program gets nothing done. 
+**thrashing:** when not enough frames to accommodate WS, page faults constantly happen. The user program gets nothing done. 
 
-**demand paging** load pages as needed. good for large exe  
-**prepaging** load the working set before letting it run, minimizing page faults. Much faster since there is _less page faults_. Gr8 for HDD! 
+**demand paging:** load pages as needed. good for large exe  
+**prepaging:** load the working set before letting it run, minimizing page faults. Much faster since there is _less page faults_. Gr8 for HDD! 
 
 #### Determining the Working Set 
 **prepaging** load the first X Pages for an executable, assuming spatial locality will ensure sequential access. 
@@ -90,6 +91,6 @@ Evict pages with 00.
 3. On a page fault: 
     1. if R == 1, Time of last use  = current virtual time.  
     2. If R == 0 && age = (current virt time - time of last use) > T, *evict*
-    3. If R == 0 && age <= T, record the page with greatest age. 
-    4. If entire table scanned, *evict oldest page*.
+    3. If R == 0 && age <= T, keep going. 
+    4. If entire table scanned and we still haven't found a page old enough, *evict oldest page*.
     

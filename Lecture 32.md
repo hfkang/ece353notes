@@ -1,6 +1,6 @@
 # Lecture 32
 
-## Data Integrity 
+## Data Integrity aka RAID
 ### Fail Stop model
  all or nothing, prevented via RAID. Aggregate multiple disks into one. Offers better performance, capacity, and reliability.  
 

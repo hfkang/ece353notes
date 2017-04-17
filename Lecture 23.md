@@ -1,5 +1,6 @@
 # Lecture 23/24
-March 8/10, 2017
+March 8/10, 2017  
+Slide deck 20: Beyond Physical Memory
 
 ### Paging
 
@@ -18,10 +19,11 @@ Note, the code segments are stored within the .exe file since they're not modifi
 
 **present bit** indicates if the page is in main memory (1) or on the disk/in exe file of disk (0). 
 
-### page fault handler
+## page fault handler
 This versatile handler is invoked when a page table entry is  
-1) valid but not present 
-2) not valid at all (raise **segmentation fault**)
+
+1. valid but not present 
+2. not valid at all (raise **segmentation fault**)
 
 **Heap**  
 **malloc** and **new** get free pages from a pool of pre-allocated memory. When they run out, a _memory allocation syscall_ is needed. the OS allocates a new frame and inserts a new valid entry into the page table.  
@@ -29,8 +31,9 @@ eg: brk()
 
 **Stack**  
 Grows via page faults:  
-1) faulting address close to stack-> allocate the memory  
-2) faulting address far away from stack -> segfault 
+
+1. faulting address close to stack-> allocate the memory  
+2. faulting address far away from stack -> segfault 
 
 In general we can assume we have infinite swap space. 
 
@@ -79,13 +82,15 @@ The TLB will have one entry for each process.
 Fork() creates a new, identical address space for the child. They refer to the same frames until one of them _writes_ to it. 
 
 All frames are set **readonly** and duplicated when a protection fault happens.  
-When a frame is evicted, all CoW page table entries must be updated.
+When a frame is evicted, all CoW page table entries that haven't been written to must be updated.
 
 #### mmap()
 instructs kernel to map a file to memory. This is called a **memory mapped file**
 **private** mode does not share with other address spaces (CoW)
 **shared** other address spaces can write to the data.
 
-Now we can access a file via the memory interface instead of syscall. 
+Now we can access a file via the memory interface instead of syscall. Access occur through virtual addresses, and can be done *much faster*. 
+
+
 
 

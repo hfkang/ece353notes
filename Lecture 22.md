@@ -51,6 +51,6 @@ record which process owns each entry in the TLB
 
 
 ### Enforcing Protection
-Protection bits should be cached in the TLB for *speeeeed*. Whenever a fault eg. write in a page segment, occurs, Kernel handles it. 
+Protection bits should be cached in the TLB for *speeeeed*. It can be checked on every memory reference as the physical address is looked up.  Whenever a fault eg. write in a page segment, occurs, Kernel handles it as a **protection fault**. 
 
 
