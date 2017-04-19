@@ -16,3 +16,8 @@ How does this one to many mapping work? Where is it stored?
 - Slides 27: How to reconcile the process->guestOS->VMM TLB entry? 
 - If a TLB entry contains VPN|MFN, then how do you know which process it belongs to? Which OS it belongs to?
 - Ie, does each OS have its own address space table? 
+-
+- How do OS access TLB?
+- How do they trigger TLB translation
+-
+-
