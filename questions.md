@@ -18,6 +18,6 @@ How does this one to many mapping work? Where is it stored?
 - Ie, does each OS have its own address space table? 
 -
 - How do OS access TLB?
-- How do they trigger TLB translation
+- How do they trigger TLB translation, is it done by hardware upon memory access when in user mode? 
 -
--
+- 
